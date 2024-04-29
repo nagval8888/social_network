@@ -17,6 +17,7 @@ class AppController extends Controller
     public function index()
     {
         $article = Article::all();
+        return view('article', compact('article'));
     }
 
     /**
