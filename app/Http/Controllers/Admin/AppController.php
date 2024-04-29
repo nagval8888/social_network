@@ -16,7 +16,7 @@ class AppController extends Controller
      */
     public function index()
     {
-        //
+        $article = Article::all();
     }
 
     /**
