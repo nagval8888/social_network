@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+    nginx:
+        container_name: social_nginx
+        image: nginx:latest
+        restart: always
+        volumes:
+            - ./:/var/www
+            - ./_docker/nginx/conf.d:/etc/nginx/conf.d
+        ports:
+            - 8000:80
+        depends_on:
+            - app
+            - db
+            - node
+
+    app:
+        container_name: social_app
+        build:
+            context: .
+            dockerfile: _docker/app/Dockerfile
+        volumes:
+            - ./:/var/www
+        depends_on:
+            - db
+            - node
+
+    db:
+        container_name: social_db
+        image: mysql:8.0
+        restart: always
+        volumes:
+            - ./_docker/db_data/db:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: social
+            MYSQL_ROOT_PASSWORD: root
+        ports:
+            - 3316:3306
+        command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
+
+    phpmyadmin:
+        container_name: social_phpmyadmin
+        image: phpmyadmin
+        restart: always
+        ports:
+            - 8080:80
+        environment:
+            PMA_HOST: db
+            PMA_USER: root
+            PMA_PASSWORD: root
+            UPLOAD_LIMIT: 64M
+            PMA_ARBITRARY: 1
+
+    node:
+        image: node
+        container_name: social_node
+        ports:
+            - 3000:3000
+        volumes:
+            - ./:/var/www
+        working_dir: /var/www
+        # tty подключает потоковый ввод, вывод из контейнера
+        tty: true
